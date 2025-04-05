@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/user_profile.dart';
+import '../widgets/profile_form_field.dart';
+import '../widgets/user_avatar.dart';
+import '../widgets/section_header.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -28,6 +31,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  String? _validateName(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your name';
+    }
+    return null;
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your email';
+    }
+    if (!value.contains('@')) {
+      return 'Please enter a valid email';
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,99 +63,71 @@ class _ProfileScreenState extends State<ProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 20),
-              CircleAvatar(
+              UserAvatar(
+                avatarUrl: _userProfile.avatarUrl,
                 radius: 50,
-                backgroundImage: NetworkImage(_userProfile.avatarUrl),
-                onBackgroundImageError: (_, __) {},
-                child: _userProfile.avatarUrl.isEmpty
-                    ? const Icon(Icons.person, size: 50)
-                    : null,
+                iconSize: 50,
               ),
               const SizedBox(height: 20),
-              TextFormField(
+              ProfileFormField(
                 initialValue: _userProfile.name,
-                decoration: const InputDecoration(
-                  labelText: 'Name',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your name';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _userProfile.name = value ?? '';
-                },
+                labelText: 'Name',
+                validator: _validateName,
+                onSaved: (value) => _userProfile.name = value ?? '',
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              ProfileFormField(
                 initialValue: _userProfile.email,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  if (!value.contains('@')) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _userProfile.email = value ?? '';
-                },
+                labelText: 'Email',
+                validator: _validateEmail,
+                onSaved: (value) => _userProfile.email = value ?? '',
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              ProfileFormField(
                 initialValue: _userProfile.bio,
-                decoration: const InputDecoration(
-                  labelText: 'Bio',
-                  border: OutlineInputBorder(),
-                ),
+                labelText: 'Bio',
                 maxLines: 3,
-                onSaved: (value) {
-                  _userProfile.bio = value ?? '';
-                },
+                onSaved: (value) => _userProfile.bio = value ?? '',
               ),
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _updateProfile,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-                child: const Text('Save Profile'),
-              ),
+              _buildSaveButton(),
               const SizedBox(height: 24),
               const Divider(),
               const SizedBox(height: 16),
-              const Text(
-                'Joined Servers',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              const SectionHeader(title: 'Joined Servers'),
               const SizedBox(height: 8),
-              if (_userProfile.joinedServers.isEmpty)
-                const Text('No servers joined yet')
-              else
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _userProfile.joinedServers.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(_userProfile.joinedServers[index]),
-                    );
-                  },
-                ),
+              _buildJoinedServersList(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSaveButton() {
+    return ElevatedButton(
+      onPressed: _updateProfile,
+      style: ElevatedButton.styleFrom(
+        minimumSize: const Size(double.infinity, 50),
+      ),
+      child: const Text('Save Profile'),
+    );
+  }
+
+  Widget _buildJoinedServersList() {
+    if (_userProfile.joinedServers.isEmpty) {
+      return const Text('No servers joined yet');
+    }
+    
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _userProfile.joinedServers.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(_userProfile.joinedServers[index]),
+        );
+      },
     );
   }
 } 
