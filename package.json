@@ -3,7 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "flutter test",
+    "test:watch": "flutter test --watch",
+    "test:coverage": "flutter test --coverage",
+    "test:models": "flutter test test/models/",
+    "test:screens": "flutter test test/screens/",
+    "test:widgets": "flutter test test/widget_test.dart"
   },
   "author": "",
   "license": "ISC",
